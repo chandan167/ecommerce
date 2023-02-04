@@ -2,7 +2,7 @@ import { Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 export type ErrorMessageType = 'success' | 'warning' | 'error' | 'info';
-export enum ErrorMessageTypeEnum {
+export enum MessageTypeEnum {
   SUCCESS = 'success',
   WARNING = 'warning',
   ERROR = 'error',
@@ -43,7 +43,7 @@ export class ApiResponse {
     return this;
   }
 
-  setMessage(message: string, type: ErrorMessageType = ErrorMessageTypeEnum.INFO): this {
+  setMessage(message: string, type: ErrorMessageType = MessageTypeEnum.INFO): this {
     this.message = {
       description: message,
       type: type,

@@ -6,7 +6,7 @@ import { group } from '@/utils/group-routes';
 import { asyncResolver } from '@/utils/async-resolver';
 import { UserValidation } from '@app/user/user.validation';
 
-class UsersRoute implements Routes {
+export class UsersRoute implements Routes {
   public path = '/users';
   public router = Router();
   public usersController: UsersController;
@@ -32,5 +32,3 @@ class UsersRoute implements Routes {
     );
   }
 }
-
-export default UsersRoute;
