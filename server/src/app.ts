@@ -34,14 +34,14 @@ class App {
   public env: string;
   public port: string | number;
 
-  constructor(routes: Routes[]) {
+  constructor(routes: Routes[], prefix:string = '/') {
     this.app = express();
     this.env = NODE_ENV || 'development';
     this.port = PORT || 3000;
 
     this.connectToDatabase();
     this.initializeMiddleware();
-    this.initializeRoutes(routes);
+    this.initializeRoutes(routes, prefix);
     // this.initializeSwagger();
     this.initializeNotFoundRoutes();
     this.initializeErrorHandling();

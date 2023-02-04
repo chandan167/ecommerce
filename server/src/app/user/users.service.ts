@@ -32,7 +32,7 @@ export class UserService {
     return this.users.findById(id);
   }
 
-  async findAllWithCount(skip = 0, limit: number = undefined, search: string = undefined) {
+  async findAllWithCount(skip:number = 0, limit: number = undefined, search: string = undefined) {
     const searchKey = ['firstName', 'lastName', 'email', 'phone'];
     let filter = {};
     if (search) {
