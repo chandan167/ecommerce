@@ -13,24 +13,21 @@ import { NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS } from '@config/env.con
 import { dbConnection } from '@config/database.config';
 import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middleware/error.middleware';
-import {apiResponse} from '@middleware/api-response.middleware';
+import { apiResponse } from '@middleware/api-response.middleware';
 import { logger, stream } from '@utils/logger';
 import { ApiResponse } from '@utils/api-response';
 import { PaginationI, pagination } from '@middleware/pagination.middleware';
 
-
 declare global {
   namespace Express {
     interface Response {
-      apiResponse: ApiResponse
+      apiResponse: ApiResponse;
     }
     interface Request {
-      pagination:PaginationI
+      pagination: PaginationI;
     }
   }
 }
-
-
 
 class App {
   public app: express.Application;
@@ -68,11 +65,11 @@ class App {
       set('debug', true);
     }
 
-    try{
+    try {
       await connect(dbConnection.url, dbConnection.options);
-    }catch(error){
-      console.log(error)
-      logger.error(["mongoose connection error ",error])
+    } catch (error) {
+      console.log(error);
+      logger.error(['mongoose connection error ', error]);
     }
   }
 
@@ -89,16 +86,16 @@ class App {
     this.app.use(apiResponse);
   }
 
-  private initializeRoutes(routes: Routes[], prefix: string = '/') {
+  private initializeRoutes(routes: Routes[], prefix = '/') {
     routes.forEach(route => {
       this.app.use(prefix, route.router);
     });
   }
 
-  private initializeNotFoundRoutes(){
-    this.app.use((req, res, next) =>{
-      next(new NotFound('Route not found'))
-    })
+  private initializeNotFoundRoutes() {
+    this.app.use((req, res, next) => {
+      next(new NotFound('Route not found'));
+    });
   }
   // private initializeSwagger() {
   //   const options = {
