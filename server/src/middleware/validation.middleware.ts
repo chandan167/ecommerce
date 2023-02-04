@@ -1,25 +1,22 @@
-import { plainToClass } from 'class-transformer';
-import { validate, ValidationError } from 'class-validator';
-import { RequestHandler } from 'express';
-import { HttpException } from '@exceptions/HttpException';
+import { NextFunction, Request, RequestHandler, Response } from "express";
+import { ValidationChain, matchedData } from "express-validator";
+import { StatusCodes } from "http-status-codes";
 
-const validationMiddleware = (
-  type: any,
-  value: string | 'body' | 'query' | 'params' = 'body',
-  skipMissingProperties = false,
-  whitelist = true,
-  forbidNonWhitelisted = true,
-): RequestHandler => {
-  return (req, res, next) => {
-    validate(plainToClass(type, req[value]), { skipMissingProperties, whitelist, forbidNonWhitelisted }).then((errors: ValidationError[]) => {
-      if (errors.length > 0) {
-        const message = errors.map((error: ValidationError) => Object.values(error.constraints)).join(', ');
-        next(new HttpException(400, message));
-      } else {
-        next();
-      }
-    });
-  };
-};
+const { validationResult } = require('express-validator');
 
-export default validationMiddleware;
+const myValidationResult = validationResult.withDefaults({
+  formatter: error => {
+    return error
+  },
+});
+
+export const validationHandler: RequestHandler = (req: Request, res:Response, next:NextFunction) =>{
+  const errors = myValidationResult(req).mapped();
+  if(Object.keys(errors).length) return res.apiResponse.setValidationError(errors).setStatus(StatusCodes.UNPROCESSABLE_ENTITY).sendJson()
+  req.body = matchedData(req, { locations: ['body'] });
+  next();
+}
+
+export const validateSchema = (schema: ValidationChain[]) =>{
+  return [schema, validationHandler] as RequestHandler|any
+}

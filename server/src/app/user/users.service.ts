@@ -1,63 +1,65 @@
-import { hash } from 'bcrypt';
-import { HttpException } from '@exceptions/HttpException';
-import { User } from '@app/user/interface/users.interface';
-import userModel from '@app/user/users.model';
-import { isEmpty } from '@utils/util';
+import { hasNextPage } from '@utils/helper';
+import userModel, { User } from '@app/user/users.model';
 
-class UserService {
+
+export class UserService {
   public users = userModel;
 
-  public async findAllUser(): Promise<User[]> {
-    const users: User[] = await this.users.find();
-    return users;
+  createUser(user: User) {
+    return this.users.create(user)
   }
 
-  public async findUserById(userId: string): Promise<User> {
-    if (isEmpty(userId)) throw new HttpException(400, "UserId is empty");
-
-    const findUser: User = await this.users.findOne({ _id: userId });
-    if (!findUser) throw new HttpException(409, "User doesn't exist");
-
-    return findUser;
+  findByEmail(email: string) {
+    return this.users.findOne({ email });
   }
 
-  public async createUser(userData: any): Promise<User> {
-    if (isEmpty(userData)) throw new HttpException(400, "userData is empty");
-
-    const findUser: User = await this.users.findOne({ email: userData.email });
-    if (findUser) throw new HttpException(409, `This email ${userData.email} already exists`);
-
-    const hashedPassword = await hash(userData.password, 10);
-    const createUserData: User = await this.users.create({ ...userData, password: hashedPassword });
-
-    return createUserData;
+  findByPhone(phone: string) {
+    return this.users.findOne({ phone });
   }
 
-  public async updateUser(userId: string, userData: any): Promise<User> {
-    if (isEmpty(userData)) throw new HttpException(400, "userData is empty");
+  findByEmails(emails: [String]) {
+    return this.users.find({
+      email: { $in: emails }
+    })
+  }
 
-    if (userData.email) {
-      const findUser: User = await this.users.findOne({ email: userData.email });
-      if (findUser && findUser._id != userId) throw new HttpException(409, `This email ${userData.email} already exists`);
+  findByIds(ids: [String]) {
+    return this.users.find({
+      _id: { $in: ids }
+    })
+  }
+
+  findById(id: string) {
+    return this.users.findById(id);
+  }
+
+
+  async findAllWithCount(skip: number = 0, limit: number = undefined, search: string = undefined,) {
+    const searchKey = ['firstName', 'lastName', 'email', 'phone']
+    let filter = {};
+    if(search){
+      filter = {
+        ...filter,
+        $or: searchKey.map(key => {
+          return {
+            [key]: {
+              '$regex': search,
+              '$options': 'i'
+            }
+          }
+        })
+      }
     }
-
-    if (userData.password) {
-      const hashedPassword = await hash(userData.password, 10);
-      userData = { ...userData, password: hashedPassword };
+    const [users, count] = await Promise.all([
+      this.users.find(filter, {}, {
+        skip: skip, limit: limit, sort: {createdAt: 'desc'}
+      }),
+      this.users.find().count(filter)
+    ])
+    return {
+      data: users,
+      count: count,
+      hasNextPage: hasNextPage(skip, limit, count)
     }
-
-    const updateUserById: User = await this.users.findByIdAndUpdate(userId, { userData });
-    if (!updateUserById) throw new HttpException(409, "User doesn't exist");
-
-    return updateUserById;
-  }
-
-  public async deleteUser(userId: string): Promise<User> {
-    const deleteUserById: User = await this.users.findByIdAndDelete(userId);
-    if (!deleteUserById) throw new HttpException(409, "User doesn't exist");
-
-    return deleteUserById;
   }
 }
-
-export default UserService;

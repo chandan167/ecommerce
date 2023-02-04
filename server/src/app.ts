@@ -16,12 +16,16 @@ import errorMiddleware from '@middleware/error.middleware';
 import {apiResponse} from '@middleware/api-response.middleware';
 import { logger, stream } from '@utils/logger';
 import { ApiResponse } from '@utils/api-response';
+import { PaginationI, pagination } from '@middleware/pagination.middleware';
 
 
 declare global {
   namespace Express {
     interface Response {
       apiResponse: ApiResponse
+    }
+    interface Request {
+      pagination:PaginationI
     }
   }
 }
@@ -81,12 +85,13 @@ class App {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
+    this.app.use(pagination());
     this.app.use(apiResponse);
   }
 
-  private initializeRoutes(routes: Routes[]) {
+  private initializeRoutes(routes: Routes[], prefix: string = '/') {
     routes.forEach(route => {
-      this.app.use('/', route.router);
+      this.app.use(prefix, route.router);
     });
   }
 

@@ -11,7 +11,7 @@ export enum ErrorMessageTypeEnum {
 }
 
 export interface ErrorMessageInterface{
-    message:string,
+    description:string,
     type: ErrorMessageType
 }
 
@@ -47,7 +47,7 @@ export class ApiResponse {
 
     setMessage(message:string, type:ErrorMessageType = ErrorMessageTypeEnum.INFO):this{
         this.message = {
-            message: message, type: type
+            description: message, type: type
         }
         return this;
     }

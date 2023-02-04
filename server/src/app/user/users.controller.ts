@@ -1,64 +1,64 @@
-import { NextFunction, Request, Response } from 'express';
-import { User } from '@app/user/interface/users.interface';
-import userService from '@app/user/users.service';
+import { NextFunction, Request, RequestHandler, Response } from 'express';
+import { NotFound } from 'http-errors';
+import { UserService } from '@app/user/users.service';
+import { checkMongooseId, checkMongooseIds } from '@utils/helper';
 
-class UsersController {
-  public userService = new userService();
+export class UsersController {
+  public userService: UserService
 
-  public getUsers = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const findAllUsersData: User[] = await this.userService.findAllUser();
+  constructor() {
+    this.userService = new UserService();
+  }
 
-      res.status(200).json({ data: findAllUsersData, message: 'findAll' });
-    } catch (error) {
-      next(error);
-    }
-  };
+  public createUser: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.body;
+    const newUser = await this.userService.createUser(user)
+    return res.apiResponse.setData({ user: newUser }).sendJson();
+  }
 
-  public getUserById = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const userId: string = req.params.id;
-      const findOneUserData: User = await this.userService.findUserById(userId);
+  public findByEmail: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+    const { email } = req.params;
+    const user = await this.userService.findByEmail(email)
+    if (!user) throw new NotFound('User not found');
+    return res.apiResponse.setData({ user }).sendJson();
+  }
 
-      res.status(200).json({ data: findOneUserData, message: 'findOne' });
-    } catch (error) {
-      next(error);
-    }
-  };
+  public findByEmails: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+    const { emails } = req.body;
+    const users = await this.userService.findByEmails(emails)
+    return res.apiResponse.setData({ users }).sendJson();
+  }
 
-  public createUser = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const userData = req.body;
-      const createUserData: User = await this.userService.createUser(userData);
+  public findByIds: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+    const { ids } = req.body;
+    checkMongooseIds(ids)
+    const users = await this.userService.findByIds(ids)
+    return res.apiResponse.setData({ users }).sendJson();
+  }
 
-      res.status(201).json({ data: createUserData, message: 'created' });
-    } catch (error) {
-      next(error);
-    }
-  };
+  public findById: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    checkMongooseId(id)
+    const user = await this.userService.findById(id)
+    if (!user) throw new NotFound('User not found');
+    return res.apiResponse.setData({ user }).sendJson();
+  }
 
-  public updateUser = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const userId: string = req.params.id;
-      const userData = req.body;
-      const updateUserData: User = await this.userService.updateUser(userId, userData);
+  public findAll: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+    const { pagination } = req
+    const { search } = req.query;
+    let users: any = await this.userService.findAllWithCount(
+      pagination.skip,
+      pagination.limit,
+      search as string
+    )
+    users = {
+      ...users,
 
-      res.status(200).json({ data: updateUserData, message: 'updated' });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  public deleteUser = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const userId: string = req.params.id;
-      const deleteUserData: User = await this.userService.deleteUser(userId);
-
-      res.status(200).json({ data: deleteUserData, message: 'deleted' });
-    } catch (error) {
-      next(error);
-    }
-  };
+    };
+    return res.apiResponse.setData({
+      users
+    }).sendJson();
+  }
 }
 
-export default UsersController;
