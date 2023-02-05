@@ -4,6 +4,7 @@ import AuthLayout from './app/auth/AuthLayout'
 import AppLayout from './app/layouts/AppLayout'
 
 const Login = lazy(() => import('./app/auth/Login'))
+const SignUp = lazy(() => import('./app/auth/SignUp'))
 const Dashboard = lazy(() => import('./app/dashboard/Dashboard'))
 
 export default function Routes() {
@@ -12,6 +13,7 @@ export default function Routes() {
             <ReactRoutes>
                 <Route element={<AuthLayout />} >
                     <Route path='/login' element={<Login />} />
+                    <Route path='/sign-up' element={<SignUp />} />
                 </Route>
                 <Route element={<AppLayout />} >
                     <Route path='/dashboard' element={<Dashboard />} />

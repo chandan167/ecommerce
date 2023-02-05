@@ -3,9 +3,16 @@ import MenuIcon from '@mui/icons-material/Menu';
 import React from 'react'
 import { useProSidebar } from 'react-pro-sidebar';
 import { ChangeThemeIcon } from '../../components/ChangeThemeIcon';
+import { useDispatch } from 'react-redux';
+import { logout } from '../auth/authSlice';
 
 export default function TopBar() {
     const { collapseSidebar, toggleSidebar,broken } = useProSidebar();
+    const dispatch = useDispatch()
+
+    const logoutHandler = () =>{
+        dispatch(logout())
+    }
     return (
         <AppBar position="sticky">
             <Toolbar>
@@ -29,7 +36,7 @@ export default function TopBar() {
                     News
                 </Typography>
                 <ChangeThemeIcon />
-                <Button color="inherit">Login</Button>
+                <Button color="inherit" onClick={logoutHandler}>LogOut</Button>
             </Toolbar>
         </AppBar>
     )

@@ -7,6 +7,7 @@ import { ForgotPasswordService } from '@app/forgot-password/forgot-password.serv
 import { JwtUtil } from '@utils/jwt';
 import { UserService } from '@app/user/users.service';
 import { EMAIL_VERIFY_LINK } from '@config/env.config';
+import { StatusCodes } from 'http-status-codes';
 
 export class AuthController {
   public authService: AuthService;
@@ -34,7 +35,7 @@ export class AuthController {
     const token = JwtUtil.generateToken({ id: newUser._id }, client);
     return res.apiResponse
       .setMessage(`We will send email confirmation mail on ${newUser.email} please check your inbox`, MessageTypeEnum.SUCCESS)
-      .setData({ token })
+      .setData({ token }).setStatus(StatusCodes.CREATED)
       .sendJson();
   };
 
