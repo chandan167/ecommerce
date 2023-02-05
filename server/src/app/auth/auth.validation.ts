@@ -1,4 +1,4 @@
-import { ValidationChain, body, param } from 'express-validator';
+import { ValidationChain, body, param, query } from 'express-validator';
 import { UserService } from '@app/user/users.service';
 
 const userService = new UserService();
@@ -38,5 +38,9 @@ export class AuthValidation {
       }
       return true;
     }),
+  ];
+
+  public reSendSchema: ValidationChain[] = [
+    body('email').trim().notEmpty().withMessage('Email is required').bail().normalizeEmail().isEmail().withMessage('Enter valid email-id'),
   ];
 }

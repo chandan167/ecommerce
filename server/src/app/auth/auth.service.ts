@@ -1,13 +1,9 @@
-
 import userModel, { User } from '@app/user/users.model';
 
 export class AuthService {
+  public users = userModel;
 
-    public users = userModel
-
-    signUp(user: User){
-        return this.users.create(user);
-    }
-
-
+  signUp(user: User) {
+    return this.users.create(user);
+  }
 }

@@ -6,28 +6,30 @@ import { asyncResolver } from '@/utils/async-resolver';
 import { AuthController } from '@app/auth/auth.controller';
 import { AuthValidation } from '@app/auth/auth.validation';
 
-
-
 export class AuthRoute implements Routes {
-    public path = '/auth';
-    public router = Router();
-    public authController : AuthController
-    public authValidation: AuthValidation
+  public path = '/auth';
+  public router = Router();
+  public authController: AuthController;
+  public authValidation: AuthValidation;
 
+  constructor() {
+    this.authController = new AuthController();
+    this.authValidation = new AuthValidation();
+    this.initializeRoutes();
+  }
 
-    constructor() {
-        this.authController = new AuthController()
-        this.authValidation = new AuthValidation()
-        this.initializeRoutes()
-    }
-
-
-    private initializeRoutes() {
-        this.router.use(
-          `${this.path}`,
-          group(route => {
-            route.post('/sign-up', validateSchema(this.authValidation.signUpSchema), asyncResolver(this.authController.signUp));
-          }),
+  private initializeRoutes() {
+    this.router.use(
+      `${this.path}`,
+      group(route => {
+        route.post('/sign-up', validateSchema(this.authValidation.signUpSchema), asyncResolver(this.authController.signUp));
+        route.get('/verify-email', asyncResolver(this.authController.verifyEmail));
+        route.post(
+          '/re-send-verification-email',
+          validateSchema(this.authValidation.reSendSchema),
+          asyncResolver(this.authController.reSendEmailVerificationLink),
         );
-      }
+      }),
+    );
+  }
 }

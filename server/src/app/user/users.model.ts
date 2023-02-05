@@ -1,8 +1,15 @@
 import { Password } from '@utils/password';
-import { model, Schema, Document, InferSchemaType } from 'mongoose';
+import { model, Schema, Document, InferSchemaType, Model } from 'mongoose';
 import { RoleEnum } from '@app/user/role';
+import { DateUtil } from '@utils/data';
 
 const password = new Password();
+
+interface IUserMethods {
+  verifyEmail(): boolean;
+}
+
+type UserModel = Model<{}, {}, IUserMethods>;
 
 const userSchema: Schema = new Schema(
   {
@@ -12,6 +19,7 @@ const userSchema: Schema = new Schema(
     },
     lastName: {
       type: String,
+      default: null,
     },
     email: {
       type: String,
@@ -20,13 +28,16 @@ const userSchema: Schema = new Schema(
     },
     emailVerifiedAt: {
       type: Date,
+      default: null,
     },
     phone: {
       type: String,
       index: true,
+      default: null,
     },
     phoneVerifiedAt: {
       type: Date,
+      default: null,
     },
     password: {
       type: String,
@@ -34,6 +45,7 @@ const userSchema: Schema = new Schema(
     },
     avatar: {
       type: String,
+      default: null,
     },
     role: {
       type: String,
@@ -59,6 +71,11 @@ const userSchema: Schema = new Schema(
     },
   },
 );
+
+userSchema.method('verifyEmail', function verifyEmail() {
+  this.emailVerifiedAt = DateUtil.now();
+});
+
 export type User = InferSchemaType<typeof userSchema>;
 
 userSchema.pre('save', async function (next) {

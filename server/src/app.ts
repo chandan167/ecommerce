@@ -19,7 +19,7 @@ import { logger, stream } from '@utils/logger';
 import { ApiResponse } from '@utils/api-response';
 import { PaginationI, pagination } from '@middleware/pagination.middleware';
 
-
+// @typescript-eslint/no-namespace
 declare global {
   namespace Express {
     interface Response {
@@ -36,7 +36,7 @@ class App {
   public env: string;
   public port: string | number;
 
-  constructor(routes: Routes[], prefix:string = '/') {
+  constructor(routes: Routes[], prefix = '/') {
     this.app = express();
     this.env = NODE_ENV || 'development';
     this.port = PORT || 3000;
@@ -89,8 +89,8 @@ class App {
     this.app.use(apiResponse);
   }
 
-  private initializeView(){
-    this.app.use('/static',express.static('public'))
+  private initializeView() {
+    this.app.use('/static', express.static('public'));
     this.app.set('view engine', 'ejs');
     this.app.set('views', path.join(__dirname, '/templates'));
   }

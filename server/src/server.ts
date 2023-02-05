@@ -5,9 +5,6 @@ import validateEnv from '@utils/validateEnv';
 
 validateEnv();
 
-const app = new App([
-    new UsersRoute(),
-    new AuthRoute()
-], '/api');
+const app = new App([new UsersRoute(), new AuthRoute()], '/api');
 
 app.listen();
