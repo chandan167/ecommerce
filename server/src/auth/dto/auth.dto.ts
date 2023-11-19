@@ -1,5 +1,5 @@
 import { OmitType, PickType } from '@nestjs/mapped-types';
-import { CreateUserDto } from 'src/user/dto/user.dto';
+import { CreateUserDto } from '../../user/dto/user.dto';
 
 export class SignUpDto extends OmitType(CreateUserDto, ['role']) {}
 export class SignInDto extends PickType(SignUpDto, [
